@@ -1,0 +1,22 @@
+# OS specific
+.DS_Store
+
+# editors
+.idea/
+.vscode/
+*.swp
+
+# Python
+__pycache__/
+.api-doc/
+.ipynb_checkpoints
+.mypy_cache/
+.venv
+*.py[cod]
+*$py.class
+env/
+venv/
+
+# dev files
+*.dev.*
+*.dev
