@@ -1,0 +1,118 @@
+[tool.poetry]
+name = "jl"
+version = "0.1.0"
+description = ""
+authors = ["Samuel Suter <sam@polysm.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+click = "^8.1.7"
+python-dateutil = "^2.9.0.post0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+mypy = "^1.11.2"
+pytest = "^8.3.3"
+ruff = "^0.6.8"
+types-python-dateutil = "^2.9.0.20240906"
+pytest-watcher = "^0.4.3"
+
+[tool.poetry.scripts]
+jl = "jl.cli:main"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+  ".venv",
+  "__pycache__",
+  ".mypy_cache",
+  ".pytest_cache"
+]
+
+[tool.ruff.lint]
+select = [
+  "F",  # Pyflakes
+  "E", "W", # pycodestyle
+  "I", # isort
+  "N", # pep8-naming
+  "D2", "D3", "D4", # pydocstyle
+  "UP", # pyupgrade
+  "YTT", # flake8-2020
+  "ANN", # flake8-annotations
+  "S", # flake8-bandit
+  "ASYNC", # flake8-async
+  "BLE", # flake8-blind-except
+  "COM", # flake8-commas
+  "B", # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "DTZ", # flake8-datetimez
+  "T10", # flake8-debugger
+  "EXE", # flake8-executable
+  "FA", # flake8-future-annotations
+  "ISC", # flake8-implicit-str-concat
+  "ICN", # flake8-import-conventions
+  "LOG", # flake8-logging
+  "INP", # flake8-no-pep420
+  "PIE", # flake8-pie
+  "T20", # flake8-print
+  "PYI", # flake8-pyi
+  "PT", # flake8-pytest-style
+  "Q", # flake8-quotes
+  "RET", # flake8-return
+  "SLF", # flake8-self
+  "SLOT", # flake8-slots
+  "SIM", # flake8-simplify
+  "TID", # flake8-tidy-imports
+  "TCH", # flake8-type-checking
+  "ERA", # eradicate
+  "PTH", # flake8-use-pathlib
+  "PL", # pylint
+  "TRY", # tryceratops
+  "FLY", # flynt
+  "RUF", # Ruff-specific rules
+  # Extra rules to eventually enable later
+  # "FBT", # flake8-boolean-trap
+  # "A", # flake8-builtins
+  # "EM", # flake8-errmsg
+  # "G", # flake8-logging-format
+]
+ignore = [
+  "N812", # lowercase-imported-as-non-lowercase
+  "ANN101", # missing-type-self
+  "ANN102", # missing-type-cls
+  "ANN401", # any-type
+  "TRY003", # raise-vanilla-args
+  "TRY300", # try-consider-else
+  "RET504", # unnecessary-assign (before return)
+  "SIM102", # collapsible-if (single if instead of nested ifs)
+  "SIM108", # if-else-block-instead-of-if-exp (enforce ternary ops)
+  "SIM117", # multiple-with-statements (enfor using a single with statement)
+  "PLR0913", # too-many-arguments
+  "PT003", # pytest-extraneous-scope-function
+]
+
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.ruff.lint.per-file-ignores]
+"cli.py" = ["T201"]
+"tests/*" = [
+  "S101", # assert
+  "PLR2004", # magic values
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+max-statements = 75
+max-branches = 25
+
+[build-system]
+requires = ["poetry-core>=1.1.0"]
+build-backend = "poetry.core.masonry.api"
