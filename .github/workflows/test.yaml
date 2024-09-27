@@ -1,11 +1,12 @@
-name: Lint and test package
+name: default
 
 on: [push]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
+    outputs:
+      release-version: ${{ steps.release-info.outputs.version }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -13,13 +14,13 @@ jobs:
       with:
         python-version: "3.11"
     # poetry
-    - name: Load cached Poetry installation
+    - name: poetry cache
       id: cached-poetry
       uses: actions/cache@v4
       with:
         path: ~/.local
         key: poetry-0
-    - name: Install Poetry
+    - name: poetry install
       if: steps.cached-poetry.outputs.cache-hit != 'true'
       uses: snok/install-poetry@v1
     # venv setup
@@ -34,3 +35,24 @@ jobs:
     - run: make test
     # build package
     - run: make build
+    # check if the package should be released
+    - name: release info
+      id: release-info
+      run: |
+        version="$(make release/version)"
+        echo "version=${version}"
+        echo "version=${version}" >> "$GITHUB_OUTPUT"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master' && needs.build.outputs.release-version != ''
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: make release/gh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
