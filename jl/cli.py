@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import IO, Any
 
 import click
@@ -18,6 +19,8 @@ LOG_LEVELS = {
     "CRITICAL": ("CRIT", "red"),
     "FATAL": ("FATAL", "red"),
 }
+K8S_PREFIXED_LINE = re.compile(r"(\[pod/[^][]+\]\s?)(.*)")
+COLORS = ["magenta", "green", "blue", "yellow", "cyan", "red"]
 
 
 def parse_json(line: str) -> tuple[str | None, dict[str, Any] | None]:
@@ -101,6 +104,11 @@ def get_level(data: dict[str, Any], keys: tuple[str, ...]) -> str:
     help="Force the use of colors, by default colors are disabled if not in a tty.",
 )
 @click.option(
+    "--k8s-prefix/--no-k8s-prefix",
+    default=True,
+    help="Try to parse k8s multi-pods prefix. True by default",
+)
+@click.option(
     "--fail-on-abort/--no-fail-on-abort",
     default=True,
     help="Exits with code 0 instead of 1 when the input stream is aborted",
@@ -118,13 +126,27 @@ def main(
     add: tuple[str, ...],
     ignore: bool,
     color: bool | None,
+    k8s_prefix: bool,
     fail_on_abort: bool,
     debug: bool,
 ) -> None:
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    pod_colors: dict[str, str] = {}
+
     try:
         # read in put line by line
-        for line in file:
+        for raw_line in file:
+            # parse k8s prefix
+            if k8s_prefix and (match := K8S_PREFIXED_LINE.match(raw_line)):
+                pod_prefix = match.group(1)
+                if pod_prefix not in pod_colors:
+                    pod_colors[pod_prefix] = COLORS[len(pod_colors) % len(COLORS)]
+                pod_prefix = click.style(pod_prefix, fg=pod_colors[pod_prefix], dim=True)
+                line = match.group(2)
+            else:
+                pod_prefix = ""
+                line = raw_line.strip()
+
             # try to guess if the line might contain json
             prefix, data = parse_json(line)
 
@@ -135,7 +157,7 @@ def main(
                 msg = get_value(data, message) or ""
 
                 # format and output
-                prefix = click.style(prefix, fg="bright_black")
+                prefix = pod_prefix + click.style(prefix, fg="bright_black")
                 ts = click.style(ts.ljust(20), bold=True)
                 lvl_info = LOG_LEVELS.get(lvl, (lvl[0:5], "bright_magenta"))
                 lvl = click.style(lvl_info[0].rjust(5), fg=lvl_info[1], bold=True)
@@ -146,7 +168,7 @@ def main(
                         name = click.style(key.rjust(25), fg="bright_black", bold=True)
                         click.echo(f"{prefix}{name}: {value}", color=color)
             elif not ignore:
-                click.echo(line, nl=False, color=color)
+                click.echo(pod_prefix + line, color=color)
     except KeyboardInterrupt:
         if fail_on_abort:
             raise
