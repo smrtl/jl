@@ -1,0 +1,36 @@
+name: Lint and test package
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      id: setup-python
+      with:
+        python-version: "3.11"
+    # poetry
+    - name: Load cached Poetry installation
+      id: cached-poetry
+      uses: actions/cache@v4
+      with:
+        path: ~/.local
+        key: poetry-0
+    - name: Install Poetry
+      if: steps.cached-poetry.outputs.cache-hit != 'true'
+      uses: snok/install-poetry@v1
+    # venv setup
+    - name: venv cache
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
+    - run: make setup
+    # lint & test
+    - run: make lint
+    - run: make test
+    # build package
+    - run: make build
