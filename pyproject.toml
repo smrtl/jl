@@ -100,7 +100,6 @@ ignore = [
 line-ending = "lf"
 
 [tool.ruff.lint.per-file-ignores]
-"cli.py" = ["T201"]
 "tests/*" = [
   "S101", # assert
   "PLR2004", # magic values

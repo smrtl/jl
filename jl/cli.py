@@ -57,7 +57,11 @@ def get_level(data: dict[str, Any], keys: tuple[str, ...]) -> str:
 
 
 @click.command()
-@click.argument("file", default="-", type=click.File("r"))
+@click.argument(
+    "file",
+    default="-",
+    type=click.File("r"),
+)
 @click.option(
     "--timestamp",
     "-t",
@@ -79,14 +83,33 @@ def get_level(data: dict[str, Any], keys: tuple[str, ...]) -> str:
     multiple=True,
     help="Adds a key to detect the log message.",
 )
-@click.option("--add", "-a", multiple=True, help="Additional value to display if present.")
-@click.option("--ignore", "-i", is_flag=True, help="Ignore non JSON logs")
+@click.option(
+    "--add",
+    "-a",
+    multiple=True,
+    help="Additional value to display if present.",
+)
+@click.option(
+    "--ignore",
+    "-i",
+    is_flag=True,
+    help="Ignore non JSON logs",
+)
 @click.option(
     "--color/--no-color",
     default=None,
     help="Force the use of colors, by default colors are disabled if not in a tty.",
 )
-@click.option("--debug", is_flag=True, help="Turns on debug logs")
+@click.option(
+    "--fail-on-abort/--no-fail-on-abort",
+    default=True,
+    help="Exits with code 0 instead of 1 when the input stream is aborted",
+)
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Turns on debug logs",
+)
 def main(
     file: IO[str],
     timestamp: tuple[str, ...],
@@ -95,31 +118,36 @@ def main(
     add: tuple[str, ...],
     ignore: bool,
     color: bool | None,
+    fail_on_abort: bool,
     debug: bool,
 ) -> None:
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    try:
+        # read in put line by line
+        for line in file:
+            # try to guess if the line might contain json
+            prefix, data = parse_json(line)
 
-    # read in put line by line
-    for line in file:
-        # try to guess if the line might contain json
-        prefix, data = parse_json(line)
+            if data:
+                # extract log data
+                ts = get_timestamp(data, timestamp)
+                lvl = get_level(data, level)
+                msg = get_value(data, message) or ""
 
-        if data:
-            # extract log data
-            ts = get_timestamp(data, timestamp)
-            lvl = get_level(data, level)
-            msg = get_value(data, message) or ""
+                # format and output
+                prefix = click.style(prefix, fg="bright_black")
+                ts = click.style(ts.ljust(20), bold=True)
+                lvl_info = LOG_LEVELS.get(lvl, (lvl[0:5], "bright_magenta"))
+                lvl = click.style(lvl_info[0].rjust(5), fg=lvl_info[1], bold=True)
+                click.echo(f"{prefix}{ts}{lvl}: {msg}", color=color)
 
-            # format and output
-            prefix = click.style(prefix, fg="bright_black")
-            ts = click.style(ts.ljust(20), bold=True)
-            lvl_info = LOG_LEVELS.get(lvl, (lvl[0:5], "bright_magenta"))
-            lvl = click.style(lvl_info[0].rjust(5), fg=lvl_info[1], bold=True)
-            click.echo(f"{prefix}{ts}{lvl}: {msg}", color=color)
-
-            for key in add:
-                if value := data.get(key):
-                    name = click.style(key.rjust(25), fg="bright_black", bold=True)
-                    click.echo(f"{prefix}{name}: {value}", color=color)
-        elif not ignore:
-            click.echo(line, nl=False, color=color)
+                for key in add:
+                    if value := data.get(key):
+                        name = click.style(key.rjust(25), fg="bright_black", bold=True)
+                        click.echo(f"{prefix}{name}: {value}", color=color)
+            elif not ignore:
+                click.echo(line, nl=False, color=color)
+    except KeyboardInterrupt:
+        if fail_on_abort:
+            raise
+        click.echo("\nAborted!")
