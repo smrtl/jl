@@ -60,7 +60,10 @@ cache/clean: ## clean local caches (mypy, pytest, etc.)
 		find . -type d -name __pycache__ -print0 | xargs -0 rm -rf
 
 .PHONY: clean
-clean: venv/clean doc/venv/clean cache/clean ## clean the dev environment (venv & caches)
+clean: venv/clean cache/clean ## clean the dev environment (venv & caches)
+
+.PHONY: setup
+setup: venv/create ## setups the dev environment
 
 .PHONY: lint/style
 lint/style: venv/create ## run formatting linters
