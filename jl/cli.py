@@ -53,7 +53,7 @@ def get_timestamp(data: dict[str, Any], keys: tuple[str, ...]) -> str:
 def get_level(data: dict[str, Any], keys: tuple[str, ...]) -> str:
     if value := get_value(data, keys):
         return value.upper()
-    return ""
+    return "INFO"
 
 
 @click.command()
