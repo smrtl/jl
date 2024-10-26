@@ -13,6 +13,11 @@ ifdef CI
 POETRY_OUTPUT_ARGS?=--no-ansi
 endif
 
+# release
+RELEASE_VERSION?=$(shell \
+	if (echo "$(PYPROJECT_VERSION)" | grep -q ".dev") || (gh release view $(PYPROJECT_VERSION) >/dev/null 2>&1); \
+	then echo ""; else echo "$(PYPROJECT_VERSION)"; fi)
+
 # paths
 SRC_DIR?=$(PYPROJECT_NAME)
 TESTS_DIR?=tests
@@ -105,3 +110,15 @@ build: venv/create ## build the project (wheel & source archive)
 .PHONY: version
 version: ## output the current version of the project
 	@echo $(PYPROJECT_VERSION)
+
+.PHONY: release/version
+release/version: ## output the version to release, if any
+	@echo $(RELEASE_VERSION)
+
+.PHONY: release/gh
+release/gh: ## create a github release
+	@if [ -n "$(RELEASE_VERSION)" ]; then \
+		gh release create "$(RELEASE_VERSION)" --generate-notes; \
+	else \
+		echo "Version $(PYPROJECT_VERSION) has already been released or is a dev version"; \
+	fi
