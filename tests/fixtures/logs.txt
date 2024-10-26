@@ -1,0 +1,14 @@
+[pod/svc-bd54fc89c-5s477/svc] INFO:     Started server process [1]
+[pod/svc-bd54fc89c-5s477/svc] INFO:     Waiting for application startup.
+[pod/svc-bd54fc89c-5s477/svc] INFO:     Application startup complete.
+[pod/svc-bd54fc89c-5s477/svc] INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,496", "levelname": "INFO", "message": "10.13.52.39:42894 - \"GET /v1/chat/agents HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,505", "levelname": "INFO", "message": "10.13.8.32:51826 - \"GET /v1/bills/John HTTP/1.1\" 200", "important": "yeah this is"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,505", "levelname": "WARNING", "message": "10.13.8.32:51826 - \"GET /v1/bills/John HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,505", "levelname": "WARN", "message": "10.13.8.32:51826 - \"GET /v1/bills/John HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,505", "levelname": "ERROR", "message": "10.13.8.32:51826 - \"GET /v1/bills/John HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,505", "levelname": "DEBUG", "message": "10.13.8.32:51826 - \"GET /v1/bills/John HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,505", "levelname": "TRACE", "message": "10.13.8.32:51826 - \"GET /v1/bills/John HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:24,505", "levelname": "CRITICAL", "message": "10.13.8.32:51826 - \"GET /v1/bills/John HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] {"asctime": "2024-09-26 13:43:26,213", "levelname": "INFO", "message": "10.13.52.39:42894 - \"GET /v1/bills/Ali HTTP/1.1\" 200"}
+[pod/svc-bd54fc89c-5s477/svc] INFO:     ('10.13.8.32', 51826) - "WebSocket /v1/chat/ws?account_id=Ali&agent_name=Kuma&language=en" [accepted]
