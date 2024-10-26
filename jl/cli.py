@@ -81,6 +81,11 @@ def get_level(data: dict[str, Any], keys: tuple[str, ...]) -> str:
 )
 @click.option("--add", "-a", multiple=True, help="Additional value to display if present.")
 @click.option("--ignore", "-i", is_flag=True, help="Ignore non JSON logs")
+@click.option(
+    "--color/--no-color",
+    default=None,
+    help="Force the use of colors, by default colors are disabled if not in a tty.",
+)
 @click.option("--debug", is_flag=True, help="Turns on debug logs")
 def main(
     file: IO[str],
@@ -89,6 +94,7 @@ def main(
     message: tuple[str, ...],
     add: tuple[str, ...],
     ignore: bool,
+    color: bool | None,
     debug: bool,
 ) -> None:
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
@@ -109,11 +115,11 @@ def main(
             ts = click.style(ts.ljust(20), bold=True)
             lvl_info = LOG_LEVELS.get(lvl, (lvl[0:5], "bright_magenta"))
             lvl = click.style(lvl_info[0].rjust(5), fg=lvl_info[1], bold=True)
-            click.echo(f"{prefix}{ts}{lvl}: {msg}")
+            click.echo(f"{prefix}{ts}{lvl}: {msg}", color=color)
 
             for key in add:
                 if value := data.get(key):
                     name = click.style(key.rjust(25), fg="bright_black", bold=True)
-                    click.echo(f"{prefix}{name}: {value}")
+                    click.echo(f"{prefix}{name}: {value}", color=color)
         elif not ignore:
-            click.echo(line, nl=False)
+            click.echo(line, nl=False, color=color)
